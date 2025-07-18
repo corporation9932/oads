@@ -24,15 +24,15 @@ class Database {
         try {
             $conn = $this->getConnection();
             if ($conn) {
-                return ["status" => "success", "message" => "Conexión exitosa a la base de datos"];
+                return ["status" => "success", "message" => "Conexão exitosa com a base de dados"];
             }
         } catch(Exception $e) {
-            return ["status" => "error", "message" => "Error de conexión: " . $e->getMessage()];
+            return ["status" => "error", "message" => "Erro de conexão: " . $e->getMessage()];
         }
     }
 }
 
-// Configuración de la API
+// Configuração da API
 class ApiConfig {
     const BASE_URL = 'http://localhost/api';
     const NITRO_API_TOKEN = 'AJTQzn8xWuYXrjNu5XWajspWi8i6sd9XzkgEViaDpkIrwyKRKCkC1fHCFY1P';
