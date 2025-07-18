@@ -5,14 +5,18 @@ RewriteCond %{REQUEST_METHOD} OPTIONS
 RewriteRule ^(.*)$ $1 [R=200,L]
 
 # API Routes
+RewriteRule ^core/?$ core/index.php [L]
 RewriteRule ^auth/register/?$ auth/register.php [L]
 RewriteRule ^auth/login/?$ auth/login.php [L]
 RewriteRule ^user/?$ user/update.php [L]
+RewriteRule ^user/profile/?$ user/profile.php [L]
 RewriteRule ^payments/deposit/?$ payments/deposit.php [L]
 RewriteRule ^payments/withdraw/?$ payments/withdraw.php [L]
 RewriteRule ^transactions/?$ transactions/list.php [L]
 RewriteRule ^games/play/?$ games/play.php [L]
 RewriteRule ^games/history/?$ games/history.php [L]
+RewriteRule ^games/types/?$ games/types.php [L]
+RewriteRule ^deliveries/?$ deliveries/list.php [L]
 RewriteRule ^admin/dashboard/?$ admin/dashboard.php [L]
 RewriteRule ^admin/users/?$ admin/users.php [L]
 RewriteRule ^admin/transactions/?$ admin/transactions.php [L]

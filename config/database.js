@@ -164,8 +164,27 @@ class ApiClient {
         });
     }
     
-    async getGameResult(gameId) {
-        return await this.request(`${API_CONFIG.ENDPOINTS.GAME_RESULT}/${gameId}`);
+    async getGameHistory() {
+        return await this.request('/games/history');
+    }
+    
+    async getGameTypes() {
+        return await this.request('/games/types');
+    }
+    
+    // Métodos de entregas
+    async getDeliveries() {
+        return await this.request('/deliveries');
+    }
+    
+    // Método para obtener configuraciones del core
+    async fetchSettings() {
+        return await this.request('/core');
+    }
+    
+    // Método para obtener perfil completo
+    async getUserProfile() {
+        return await this.request('/user/profile');
     }
     
     // Métodos de admin
