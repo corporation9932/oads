@@ -36,6 +36,12 @@ $stmt = $db->prepare($query);
 $stmt->execute();
 $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+// Processar dados
+foreach($users as &$userData) {
+    $userData['balance'] = floatval($userData['balance']);
+    $userData['is_admin'] = boolval($userData['is_admin']);
+}
+
 http_response_code(200);
 echo json_encode($users);
 ?>

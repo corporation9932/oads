@@ -25,20 +25,14 @@ $data = json_decode(file_get_contents("php://input"));
 
 if(!empty($data->amount) && !empty($data->pix_key)) {
     // Buscar dados do usuário
-    $query = "SELECT * FROM users WHERE id = :id";
-    $stmt = $db->prepare($query);
-    $stmt->bindParam(":id", $user_id);
-    $stmt->execute();
-    $userData = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    if(!$userData) {
+    if(!$user->getUserById($user_id)) {
         http_response_code(404);
         echo json_encode(array("message" => "Usuário não encontrado."));
         exit;
     }
 
     // Verificar se tem saldo suficiente
-    if($userData['balance'] < $data->amount) {
+    if($user->balance < $data->amount) {
         http_response_code(400);
         echo json_encode(array("message" => "Saldo insuficiente."));
         exit;
@@ -54,7 +48,6 @@ if(!empty($data->amount) && !empty($data->pix_key)) {
 
     if($transaction->create()) {
         // Debitar do saldo
-        $user->id = $user_id;
         $user->updateBalance(-$data->amount);
 
         http_response_code(200);

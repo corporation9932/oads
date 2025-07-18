@@ -5,7 +5,6 @@ include_once '../config/database.php';
 $database = new Database();
 $db = $database->getConnection();
 
-// Configuraciones básicas del sistema
 $settings = [
     'app_name' => 'Raspadinha',
     'app_version' => '1.0.0',

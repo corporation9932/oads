@@ -17,15 +17,7 @@ file_put_contents('webhook_log.txt', date('Y-m-d H:i:s') . " - " . $input . "\n"
 
 if($data && isset($data['id']) && isset($data['status'])) {
     // Buscar transação pelo external_id
-    $query = "SELECT * FROM transactions WHERE external_id = :external_id";
-    $stmt = $db->prepare($query);
-    $stmt->bindParam(":external_id", $data['id']);
-    $stmt->execute();
-    $transactionData = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    if($transactionData) {
-        $transaction->id = $transactionData['id'];
-        
+    if($transaction->findByExternalId($data['id'])) {
         // Atualizar status baseado no webhook
         $newStatus = 'pending';
         switch($data['status']) {
@@ -33,9 +25,9 @@ if($data && isset($data['id']) && isset($data['status'])) {
             case 'paid':
                 $newStatus = 'completed';
                 // Creditar saldo se for depósito aprovado
-                if($transactionData['type'] == 'deposit') {
-                    $user->id = $transactionData['user_id'];
-                    $user->updateBalance($transactionData['amount']);
+                if($transaction->type == 'deposit') {
+                    $user->getUserById($transaction->user_id);
+                    $user->updateBalance($transaction->amount);
                 }
                 break;
             case 'cancelled':

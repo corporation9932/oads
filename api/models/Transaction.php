@@ -56,5 +56,26 @@ class Transaction {
         $stmt->bindParam(":id", $this->id);
         return $stmt->execute();
     }
+
+    public function findByExternalId($external_id) {
+        $query = "SELECT * FROM " . $this->table_name . " WHERE external_id = :external_id";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":external_id", $external_id);
+        $stmt->execute();
+        
+        if($stmt->rowCount() > 0) {
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            $this->id = $row['id'];
+            $this->user_id = $row['user_id'];
+            $this->type = $row['type'];
+            $this->amount = $row['amount'];
+            $this->status = $row['status'];
+            $this->payment_method = $row['payment_method'];
+            $this->external_id = $row['external_id'];
+            $this->created_at = $row['created_at'];
+            return true;
+        }
+        return false;
+    }
 }
 ?>

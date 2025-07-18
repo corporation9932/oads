@@ -49,13 +49,25 @@ $stats['total_transactions'] = $stmt->fetch(PDO::FETCH_ASSOC)['total_transaction
 $query = "SELECT COALESCE(SUM(amount), 0) as total_deposits FROM transactions WHERE type = 'deposit' AND status = 'completed'";
 $stmt = $db->prepare($query);
 $stmt->execute();
-$stats['total_deposits'] = $stmt->fetch(PDO::FETCH_ASSOC)['total_deposits'];
+$stats['total_deposits'] = floatval($stmt->fetch(PDO::FETCH_ASSOC)['total_deposits']);
 
 // Total sacado
 $query = "SELECT COALESCE(SUM(amount), 0) as total_withdraws FROM transactions WHERE type = 'withdraw' AND status = 'completed'";
 $stmt = $db->prepare($query);
 $stmt->execute();
-$stats['total_withdraws'] = $stmt->fetch(PDO::FETCH_ASSOC)['total_withdraws'];
+$stats['total_withdraws'] = floatval($stmt->fetch(PDO::FETCH_ASSOC)['total_withdraws']);
+
+// Total de jogos
+$query = "SELECT COUNT(*) as total_games FROM games";
+$stmt = $db->prepare($query);
+$stmt->execute();
+$stats['total_games'] = $stmt->fetch(PDO::FETCH_ASSOC)['total_games'];
+
+// Total ganho em jogos
+$query = "SELECT COALESCE(SUM(win_amount), 0) as total_winnings FROM games";
+$stmt = $db->prepare($query);
+$stmt->execute();
+$stats['total_winnings'] = floatval($stmt->fetch(PDO::FETCH_ASSOC)['total_winnings']);
 
 http_response_code(200);
 echo json_encode($stats);

@@ -39,6 +39,11 @@ $stmt = $db->prepare($query);
 $stmt->execute();
 $transactions = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+// Processar dados
+foreach($transactions as &$trans) {
+    $trans['amount'] = floatval($trans['amount']);
+}
+
 http_response_code(200);
 echo json_encode($transactions);
 ?>

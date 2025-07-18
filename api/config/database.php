@@ -32,7 +32,6 @@ class Database {
     }
 }
 
-// Configuração da API
 class ApiConfig {
     const BASE_URL = 'http://localhost/api';
     const NITRO_API_TOKEN = 'AJTQzn8xWuYXrjNu5XWajspWi8i6sd9XzkgEViaDpkIrwyKRKCkC1fHCFY1P';

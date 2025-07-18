@@ -37,6 +37,7 @@ class User {
         $stmt->bindParam(":document", $this->document);
 
         if($stmt->execute()) {
+            $this->id = $this->conn->lastInsertId();
             return true;
         }
         return false;
@@ -68,22 +69,33 @@ class User {
     }
 
     public function update() {
-        $query = "UPDATE " . $this->table_name . " 
-                SET username=:username, phone=:phone, document=:document 
-                WHERE id=:id";
+        $fields = [];
+        $params = [];
+        
+        if(isset($this->username)) {
+            $fields[] = "username=:username";
+            $params[':username'] = htmlspecialchars(strip_tags($this->username));
+        }
+        if(isset($this->phone)) {
+            $fields[] = "phone=:phone";
+            $params[':phone'] = htmlspecialchars(strip_tags($this->phone));
+        }
+        if(isset($this->document)) {
+            $fields[] = "document=:document";
+            $params[':document'] = htmlspecialchars(strip_tags($this->document));
+        }
+        if(isset($this->email)) {
+            $fields[] = "email=:email";
+            $params[':email'] = htmlspecialchars(strip_tags($this->email));
+        }
+
+        if(empty($fields)) return false;
+
+        $query = "UPDATE " . $this->table_name . " SET " . implode(', ', $fields) . " WHERE id=:id";
+        $params[':id'] = $this->id;
 
         $stmt = $this->conn->prepare($query);
-
-        $this->username = htmlspecialchars(strip_tags($this->username));
-        $this->phone = htmlspecialchars(strip_tags($this->phone));
-        $this->document = htmlspecialchars(strip_tags($this->document));
-
-        $stmt->bindParam(":username", $this->username);
-        $stmt->bindParam(":phone", $this->phone);
-        $stmt->bindParam(":document", $this->document);
-        $stmt->bindParam(":id", $this->id);
-
-        return $stmt->execute();
+        return $stmt->execute($params);
     }
 
     public function updateBalance($amount) {
@@ -96,8 +108,8 @@ class User {
 
     public function getStats() {
         $query = "SELECT 
-                    COALESCE(SUM(CASE WHEN type = 'deposit' THEN amount ELSE 0 END), 0) as deposit_sum,
-                    COALESCE(SUM(CASE WHEN type = 'withdraw' THEN amount ELSE 0 END), 0) as withdraw_sum
+                    COALESCE(SUM(CASE WHEN type = 'deposit' AND status = 'completed' THEN amount ELSE 0 END), 0) as deposit_sum,
+                    COALESCE(SUM(CASE WHEN type = 'withdraw' AND status = 'completed' THEN amount ELSE 0 END), 0) as withdraw_sum
                   FROM transactions WHERE user_id = :user_id";
         
         $stmt = $this->conn->prepare($query);
@@ -105,6 +117,27 @@ class User {
         $stmt->execute();
         
         return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function getUserById($id) {
+        $query = "SELECT id, username, email, phone, document, balance, created_at, is_admin 
+                FROM " . $this->table_name . " WHERE id = :id";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":id", $id);
+        $stmt->execute();
+        
+        if($stmt->rowCount() > 0) {
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            $this->id = $row['id'];
+            $this->username = $row['username'];
+            $this->email = $row['email'];
+            $this->phone = $row['phone'];
+            $this->document = $row['document'];
+            $this->balance = $row['balance'];
+            $this->is_admin = $row['is_admin'];
+            return true;
+        }
+        return false;
     }
 }
 ?>

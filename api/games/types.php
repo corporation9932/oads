@@ -2,7 +2,7 @@
 include_once '../config/cors.php';
 
 $game_types = [
-    'dinheiro' => [
+    [
         'id' => 'dinheiro',
         'name' => 'Raspadinha Dinheiro',
         'description' => 'Ganhe dinheiro real raspando!',
@@ -13,7 +13,7 @@ $game_types = [
         'image' => '/assets/scratch.png',
         'active' => true
     ],
-    'eletronicos' => [
+    [
         'id' => 'eletronicos',
         'name' => 'Eletrônicos',
         'description' => 'Ganhe smartphones, tablets e mais!',
@@ -24,7 +24,7 @@ $game_types = [
         'image' => '/assets/scratch.png',
         'active' => true
     ],
-    'eletrodomesticos' => [
+    [
         'id' => 'eletrodomesticos',
         'name' => 'Eletrodomésticos',
         'description' => 'Geladeiras, fogões e muito mais!',
@@ -35,7 +35,7 @@ $game_types = [
         'image' => '/assets/scratch.png',
         'active' => true
     ],
-    'camisa-de-futebol' => [
+    [
         'id' => 'camisa-de-futebol',
         'name' => 'Camisa de Futebol',
         'description' => 'Camisas oficiais dos seus times!',
@@ -49,5 +49,5 @@ $game_types = [
 ];
 
 http_response_code(200);
-echo json_encode(array_values($game_types));
+echo json_encode($game_types);
 ?>

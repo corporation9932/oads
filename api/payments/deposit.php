@@ -25,14 +25,7 @@ $data = json_decode(file_get_contents("php://input"));
 
 if(!empty($data->amount)) {
     // Buscar dados do usuário
-    $user->id = $user_id;
-    $query = "SELECT * FROM users WHERE id = :id";
-    $stmt = $db->prepare($query);
-    $stmt->bindParam(":id", $user_id);
-    $stmt->execute();
-    $userData = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    if(!$userData) {
+    if(!$user->getUserById($user_id)) {
         http_response_code(404);
         echo json_encode(array("message" => "Usuário não encontrado."));
         exit;
@@ -49,10 +42,10 @@ if(!empty($data->amount)) {
         "offer_hash" => "ydpamubeay",
         "payment_method" => "pix",
         "customer" => [
-            "name" => $userData['username'],
-            "email" => $userData['email'],
-            "phone_number" => preg_replace('/\D/', '', $userData['phone']),
-            "document" => preg_replace('/\D/', '', $userData['document']),
+            "name" => $user->username,
+            "email" => $user->email,
+            "phone_number" => preg_replace('/\D/', '', $user->phone),
+            "document" => preg_replace('/\D/', '', $user->document),
             "street_name" => "",
             "number" => "",
             "complement" => "",

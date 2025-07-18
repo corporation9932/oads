@@ -1,9 +1,11 @@
 <?php
 include_once '../config/cors.php';
 include_once '../config/database.php';
+include_once '../models/User.php';
 
 $database = new Database();
 $db = $database->getConnection();
+$user = new User($db);
 
 // Verificar token de autorización
 $headers = getallheaders();
@@ -21,48 +23,49 @@ $data = json_decode(file_get_contents("php://input"));
 
 if(!empty($data->game_type) && !empty($data->bet_amount)) {
     // Verificar saldo do usuário
-    $query = "SELECT balance FROM users WHERE id = :id";
-    $stmt = $db->prepare($query);
-    $stmt->bindParam(":id", $user_id);
-    $stmt->execute();
-    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+    if(!$user->getUserById($user_id)) {
+        http_response_code(404);
+        echo json_encode(array("message" => "Usuário não encontrado."));
+        exit;
+    }
 
-    if(!$user || $user['balance'] < $data->bet_amount) {
+    if($user->balance < $data->bet_amount) {
         http_response_code(400);
         echo json_encode(array("message" => "Saldo insuficiente."));
         exit;
     }
 
     // Debitar valor da aposta
-    $query = "UPDATE users SET balance = balance - :amount WHERE id = :id";
-    $stmt = $db->prepare($query);
-    $stmt->bindParam(":amount", $data->bet_amount);
-    $stmt->bindParam(":id", $user_id);
-    $stmt->execute();
+    $user->updateBalance(-$data->bet_amount);
 
-    // Lógica do jogo (exemplo simples)
-    $win_chance = 0.3; // 30% de chance de ganhar
-    $is_winner = (rand(1, 100) / 100) <= $win_chance;
+    // Lógica do jogo baseada no tipo
+    $game_configs = [
+        'dinheiro' => ['win_chance' => 0.3, 'multipliers' => [1.5, 2, 3, 5, 10]],
+        'eletronicos' => ['win_chance' => 0.25, 'multipliers' => [2, 3, 5, 8]],
+        'eletrodomesticos' => ['win_chance' => 0.2, 'multipliers' => [3, 5, 10, 15]],
+        'camisa-de-futebol' => ['win_chance' => 0.35, 'multipliers' => [1.5, 2, 4, 6]]
+    ];
+
+    $config = $game_configs[$data->game_type] ?? $game_configs['dinheiro'];
+    $win_chance = $config['win_chance'];
+    $multipliers = $config['multipliers'];
     
-    $multipliers = [1.5, 2, 3, 5, 10];
+    $is_winner = (rand(1, 100) / 100) <= $win_chance;
     $win_amount = 0;
+    $multiplier = 0;
     
     if($is_winner) {
         $multiplier = $multipliers[array_rand($multipliers)];
         $win_amount = $data->bet_amount * $multiplier;
         
         // Creditar prêmio
-        $query = "UPDATE users SET balance = balance + :amount WHERE id = :id";
-        $stmt = $db->prepare($query);
-        $stmt->bindParam(":amount", $win_amount);
-        $stmt->bindParam(":id", $user_id);
-        $stmt->execute();
+        $user->updateBalance($win_amount);
     }
 
     // Salvar jogo no banco
     $result = json_encode([
         'is_winner' => $is_winner,
-        'multiplier' => $is_winner ? $multiplier : 0,
+        'multiplier' => $multiplier,
         'win_amount' => $win_amount
     ]);
 
@@ -79,19 +82,15 @@ if(!empty($data->game_type) && !empty($data->bet_amount)) {
     $game_id = $db->lastInsertId();
 
     // Buscar saldo atualizado
-    $query = "SELECT balance FROM users WHERE id = :id";
-    $stmt = $db->prepare($query);
-    $stmt->bindParam(":id", $user_id);
-    $stmt->execute();
-    $updated_user = $stmt->fetch(PDO::FETCH_ASSOC);
+    $user->getUserById($user_id);
 
     http_response_code(200);
     echo json_encode(array(
         "game_id" => $game_id,
         "is_winner" => $is_winner,
         "win_amount" => $win_amount,
-        "multiplier" => $is_winner ? $multiplier : 0,
-        "new_balance" => floatval($updated_user['balance']),
+        "multiplier" => $multiplier,
+        "new_balance" => floatval($user->balance),
         "message" => $is_winner ? "Parabéns! Você ganhou!" : "Que pena! Tente novamente."
     ));
 } else {
