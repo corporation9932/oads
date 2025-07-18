@@ -1,0 +1,22 @@
+RewriteEngine On
+
+# Handle CORS preflight requests
+RewriteCond %{REQUEST_METHOD} OPTIONS
+RewriteRule ^(.*)$ $1 [R=200,L]
+
+# API Routes
+RewriteRule ^auth/register/?$ auth/register.php [L]
+RewriteRule ^auth/login/?$ auth/login.php [L]
+RewriteRule ^user/?$ user/update.php [L]
+RewriteRule ^payments/deposit/?$ payments/deposit.php [L]
+RewriteRule ^payments/withdraw/?$ payments/withdraw.php [L]
+RewriteRule ^transactions/?$ transactions/list.php [L]
+RewriteRule ^admin/dashboard/?$ admin/dashboard.php [L]
+RewriteRule ^admin/users/?$ admin/users.php [L]
+RewriteRule ^admin/transactions/?$ admin/transactions.php [L]
+RewriteRule ^webhooks/nitro/?$ webhooks/nitro.php [L]
+
+# Security headers
+Header always set X-Content-Type-Options nosniff
+Header always set X-Frame-Options DENY
+Header always set X-XSS-Protection "1; mode=block"
