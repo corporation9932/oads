@@ -20,8 +20,13 @@
 - `POST /api/auth/register` - Registrar usuário
 - `POST /api/auth/login` - Login
 
+### Core
+- `GET /api/core` - Configurações do sistema
+
 ### Usuário
+- `GET /api/user` - Dados do usuário
 - `PATCH /api/user` - Atualizar dados do usuário
+- `GET /api/user/profile` - Perfil completo com estatísticas
 
 ### Pagamentos
 - `POST /api/payments/deposit` - Criar depósito
@@ -29,6 +34,14 @@
 
 ### Transações
 - `GET /api/transactions` - Listar transações do usuário
+
+### Jogos
+- `POST /api/games/play` - Jogar raspadinha
+- `GET /api/games/history` - Histórico de jogos
+- `GET /api/games/types` - Tipos de jogos disponíveis
+
+### Entregas
+- `GET /api/deliveries` - Listar entregas/prêmios
 
 ### Admin (requer is_admin = true)
 - `GET /api/admin/dashboard` - Estatísticas gerais
@@ -69,3 +82,10 @@ Todas as respostas seguem o padrão JSON com status HTTP apropriado.
 - Tokens de autenticação são validados em endpoints protegidos
 - CORS configurado para permitir requisições do frontend
 - Validação de dados de entrada em todos os endpoints
+
+## Instalação Rápida
+
+1. Execute `setup.php` para verificar a configuração
+2. Importe `database.sql` no MySQL
+3. Configure credenciais se necessário
+4. Pronto para usar!
